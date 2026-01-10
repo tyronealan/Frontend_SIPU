@@ -109,11 +109,55 @@ export default function AllInformation({ onEditClick }) {
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">País</Blockquote>
-              <span>Manta</span>
+              <span>{fullUser?.pais} </span>
             </div>
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Provincia</Blockquote>
               <span>Manta</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Ciudad</Blockquote>
+              <span>Manta</span>
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex flex-row items-center justify-center gap-3">
+            <IoPersonOutline className="size-10" />
+            <h5 className="font-bold text-xl">Informacion demografica</h5>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Nacionalidad</Blockquote>
+              <span>{fullUser?.nacionalidad} </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Fecha de nacimiento</Blockquote>
+              <span>{fullUser?.fecha_nacimiento} </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Estado civil</Blockquote>
+              <span>{fullUser?.estado_civil} </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Sexo</Blockquote>
+              <span>{fullUser?.sexo} </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Autoidentificacion</Blockquote>
+              <span>{fullUser?.autoidentificacion} </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Discapacidad</Blockquote>
+              <span>{fullUser?.discapacidad} </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Pais</Blockquote>
+              <span>{fullUser?.pais} </span>
+            </div>
+             <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Provincia</Blockquote>
+              <span>{fullUser?.provincia} </span>
             </div>
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Ciudad</Blockquote>
