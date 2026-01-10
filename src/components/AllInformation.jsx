@@ -148,11 +148,11 @@ export default function AllInformation({ onEditClick }) {
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">País</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Titulo Homologado</Blockquote>
+              <span>{fullUser?.titulo_homologado}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Provincia</Blockquote>
+              <Blockquote className="text-base">Unidad Educativa</Blockquote>
               <span>Manta</span>
             </div>
             <div className="flex flex-col gap-2">
