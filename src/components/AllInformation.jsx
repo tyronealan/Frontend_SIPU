@@ -16,7 +16,7 @@ import { BsHouse } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
 
 export default function AllInformation({ onEditClick }) {
-  const URL_PHOTO = "http://192.268.0.115:4000/";
+  const URL_PHOTO = "http://192.168.0.115:4000/";
   const [fullUser, setFullUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,16 +108,20 @@ export default function AllInformation({ onEditClick }) {
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">País</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Nombre</Blockquote>
+              <span>{fullUser?.nombre}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Provincia</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Apellido</Blockquote>
+              <span>{fullUser?.apellido}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Ciudad</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Cédula</Blockquote>
+              <span>{fullUser?.cedula}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Contraseña</Blockquote>
+              <span>{fullUser?.contraseña}</span>
             </div>
           </div>
         </Card>
@@ -158,6 +162,34 @@ export default function AllInformation({ onEditClick }) {
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Ciudad</Blockquote>
               <span>Manta</span>
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex flex-row items-center justify-center gap-3">
+            <IoPersonOutline className="size-10" />
+            <h5 className="font-bold text-xl">Informacion Servicios Básicos</h5>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Agua potable</Blockquote>
+              <span>{fullUser?.agua_potable}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Energia electrica</Blockquote>
+              <span>{fullUser?.energia_electrica}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Alcantarillado</Blockquote>
+              <span>{fullUser?.alcantarillado}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Recoleccion de basura</Blockquote>
+              <span>{fullUser?.recoleccion_basura}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Internet</Blockquote>
+              <span>{fullUser?.internet}</span>
             </div>
           </div>
         </Card>
