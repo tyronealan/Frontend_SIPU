@@ -124,20 +124,28 @@ export default function AllInformation({ onEditClick }) {
         <Card>
           <div className="flex flex-row items-center justify-center gap-3">
             <BsHouse className="size-10" />
-            <h5 className="font-bold text-xl">Informacion Domicilio</h5>
+            <h5 className="font-bold text-xl">Información Domicilio</h5>
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">País</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Barrio</Blockquote>
+              <span>{fullUser.barrio}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Provincia</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Calle Principal</Blockquote>
+              <span>{fullUser.calle_principal}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Ciudad</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Calle Secundaria</Blockquote>
+              <span>{fullUser.calle_secundaria}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Número Domicilio</Blockquote>
+              <span>{fullUser.numero_domicilio}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Tipo Vivienda</Blockquote>
+              <span>{fullUser.tipo_vivienda}</span>
             </div>
           </div>
         </Card>
