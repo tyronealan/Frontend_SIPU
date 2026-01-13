@@ -10,6 +10,12 @@ import PublicLayout from "./layout/PublicLayout.jsx";
 const LazyLandingPage = lazy(() => import("./pages/LandingPage.jsx"));
 const LazyHomePage = lazy(() => import("./pages/Home.jsx"));
 const LazyLoginPage = lazy(() => import("./pages/Login.jsx"));
+const LazyRegisterPage = lazy(() => import("./pages/Register.jsx"));
+const LazyEstudiantesPage = lazy(() => import("./pages/Estudiantes.jsx"));
+
+const LazySedesEvaluacionPage = lazy(() =>
+  import("./pages/SedeEvaluacion.jsx")
+);
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -25,11 +31,23 @@ function App() {
             <Route path="/" element={<LazyLandingPage />} />
           </Route>
           <Route path="/login" element={<LazyLoginPage setUser={setUser} />} />
+          <Route
+            path="/register"
+            element={<LazyRegisterPage setUser={setUser} />}
+          />
 
           {/* rutas protegidas solo con login */}
           <Route element={<ProtectedRoute isAllowed={!!user} />}>
             <Route element={<MainLayout user={user} />}>
               <Route path="/home" element={<LazyHomePage user={user} />} />
+              <Route
+                path="/ofertas-academicas"
+                element={<LazyEstudiantesPage user={user} />}
+              />
+              <Route
+                path="/sedes-evaluaciones"
+                element={<LazySedesEvaluacionPage user={user} />}
+              />
             </Route>
           </Route>
 

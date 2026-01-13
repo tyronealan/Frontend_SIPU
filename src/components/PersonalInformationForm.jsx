@@ -5,45 +5,53 @@ import {
   TextInput,
   Avatar,
   Spinner,
+  Select,
+  Radio,
 } from "flowbite-react";
 import { HiCamera } from "react-icons/hi";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { uploadPhotoRequest } from "../api/users.api";
+import { URL_PHOTO } from "../api/http";
+import { useUserProfile } from "../hooks/useUser";
 import {
-  getProfileRequest,
-  uploadPhotoRequest,
-  updateProfileToken,
-} from "../api/users.api";
+  useCiudad,
+  useEstadoCivil,
+  useNacionalidad,
+  usePais,
+  useProvincia,
+  useSexo,
+} from "../hooks/useDatosDemograficos";
+import { createDatosDemograficos } from "../api/demografico.api";
 
-export default function PersonalInformationForm() {
-  const [user, setUser] = useState({
-    nombre: "",
-    apellido: "",
-    cedula: "",
-    foto_url: "",
-  });
-
-  const [loading, setLoading] = useState(true);
+export default function PersonalInformationForm({ user }) {
+  const { profile, setProfile, loadingProfile } = useUserProfile();
+  const { ciudades, loadingCiudades } = useCiudad();
+  const { provincias, loadingProvincias } = useProvincia();
+  const { estadoCivil, loadingEstadoCivil } = useEstadoCivil();
+  const { paises, loadingPaises } = usePais();
+  const { sexo, loadingSexo } = useSexo();
+  const { nacionalidades, loadingNacionalidades } = useNacionalidad();
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const API_URL = "http://localhost:4000";
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await getProfileRequest();
-        setUser(data);
-      } catch (err) {
-        console.error("Error al cargar perfil", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  const [form, setForm] = useState({
+    usuario_id: user.id,
+    nacionalidad_id: "",
+    fecha_nacimiento: "",
+    estado_civil_id: "",
+    sexo_id: "",
+    discapacidad: false,
+    pais_id: "",
+    provincia_id: "",
+    ciudad_id: "",
+  });
 
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.id]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // --- MANEJO DE FOTO ---
@@ -54,13 +62,10 @@ export default function PersonalInformationForm() {
     setUploading(true);
     try {
       const response = await uploadPhotoRequest(file);
-
-      // Agregamos un "timestamp" para que el navegador crea que es una URL nueva
-      // Esto soluciona que no se vea la foto hasta refrescar
       const urlLimpia = response.foto_url;
       const urlConTimestamp = `${urlLimpia}?t=${new Date().getTime()}`;
 
-      setUser((prev) => ({
+      setProfile((prev) => ({
         ...prev,
         foto_url: urlConTimestamp,
       }));
@@ -74,27 +79,30 @@ export default function PersonalInformationForm() {
     }
   };
 
-  // --- GUARDADO DE TEXTO ---
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const dataToUpdate = {
-        nombre: user.nombre,
-        apellido: user.apellido,
-        cedula: user.cedula,
-      };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      await updateProfileToken(dataToUpdate);
-      alert("Información personal actualizada");
-    } catch (err) {
-      console.error("Error actualizando perfil:", err);
-      alert("Error al actualizar los datos");
-    } finally {
-      setSaving(false);
+    try {
+      await createDatosDemograficos(form);
+      alert("Oferta académica creada correctamente");
+
+      // limpiar formulario
+      setForm({
+        nacionalidad_id: "",
+        fecha_nacimiento: "",
+        estado_civil_id: "",
+        sexo_id: "",
+        discapacidad: "",
+        pais_id: "",
+        provincia_id: "",
+        ciudad_id: "",
+      });
+    } catch (error) {
+      console.error(error);
+      alert("Error al guardar los datos demográficos");
     }
   };
-
-  if (loading)
+  if (loadingProfile)
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner size="xl" />
@@ -104,33 +112,31 @@ export default function PersonalInformationForm() {
   return (
     <div className="flex flex-col items-center justify-center p-4 w-full animate-fade-in">
       <div className="w-full md:w-3/4 lg:w-2/3">
-        <Card>
-          <h2 className="font-bold text-2xl text-gray-800 dark:text-white">
-            Mi Perfil
-          </h2>
+        <Card className="">
+          <h2 className="font-bold text-2xl text-gray-800 ">Mi Perfil</h2>
           <p className="text-gray-500 text-sm mb-4">
             Gestiona tu información personal y foto de perfil
           </p>
 
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row gap-10  items-center ">
             {/* SECCIÓN FOTO DE PERFIL */}
-            <div className="flex flex-col items-center justify-center gap-4 p-6 border-2 border-dashed border-gray-200 rounded-xl dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
+            <div className="flex flex-col items-center justify-center gap-4  rounded-xl   ">
               <div className="relative group">
                 <Avatar
                   img={
-                    user.foto_url
-                      ? user.foto_url.startsWith("http")
-                        ? user.foto_url
-                        : `${API_URL}${user.foto_url}`
+                    profile.foto_url
+                      ? profile.foto_url.startsWith("http")
+                        ? profile.foto_url
+                        : `${URL_PHOTO}${profile.foto_url}`
                       : undefined
                   }
-                  placeholderInitials={user.nombre?.charAt(0).toUpperCase()}
+                  placeholderInitials={profile.nombre?.charAt(0).toUpperCase()}
                   size="xl"
                   rounded
-                  className="shadow-lg"
+                  className="shadow-lg rounded-full"
                 />
                 {uploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-black/60 rounded-full">
+                  <div className="absolute inset-0 flex items-center justify-center  rounded-full">
                     <Spinner size="md" />
                   </div>
                 )}
@@ -139,9 +145,9 @@ export default function PersonalInformationForm() {
               <div className="text-center">
                 <Label
                   htmlFor="foto"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-all shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2  border border-gray-300  rounded-lg cursor-pointer text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-all shadow-sm"
                 >
-                  <HiCamera className="w-5 h-5 text-cyan-600" />
+                  <HiCamera className="w-5 h-5 " />
                   <span>{uploading ? "Subiendo..." : "Cambiar foto"}</span>
                   <input
                     id="foto"
@@ -154,47 +160,219 @@ export default function PersonalInformationForm() {
               </div>
             </div>
 
-            {/* FORMULARIO */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Informacion solo lectura */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6  w-10/12">
               <div className="space-y-2">
-                <Label htmlFor="nombre" value="Nombres" />
+                <Label htmlFor="nombre" value="Nombres">
+                  Nombres:
+                </Label>
                 <TextInput
-                  id="nombre"
-                  value={user.nombre || ""}
-                  onChange={handleChange}
-                  required
+                  // id="nombre"
+                  value={profile.nombre || ""}
+                  // onChange={handleChange}
+                  // required
+                  disabled
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="apellido" value="Apellidos" />
+                <Label htmlFor="apellido" value="Apellidos">
+                  Apellidos
+                </Label>
+                <TextInput value={profile.apellido || ""} disabled />
+              </div>
+              <div className=" space-y-2">
+                <Label htmlFor="cedula" value="Cédula de Identidad">
+                  Cédula de Identidad
+                </Label>
                 <TextInput
-                  id="apellido"
-                  value={user.apellido || ""}
-                  onChange={handleChange}
-                  required
+                  // id="cedula"
+                  value={profile.cedula || ""}
+                  // onChange={handleChange}
+                  disabled
                 />
               </div>
-              <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="cedula" value="Cédula de Identidad" />
-                <TextInput
-                  id="cedula"
-                  value={user.cedula || ""}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-700">
-              <Button
-                onClick={handleSave}
-                disabled={saving || uploading}
-                color="info"
-              >
-                {saving ? <Spinner size="sm" className="mr-2" /> : null}
-                {saving ? "Guardando..." : "Guardar Cambios"}
-              </Button>
             </div>
           </div>
+          <Card>
+            <h2>Datos demograficos</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="nacionalidad" value="nacionalidad">
+                    Nacionalidad
+                  </Label>
+                </div>
+                <Select
+                  name="nacionalidad_id"
+                  id="nacionalidad"
+                  required
+                  value={form.nacionalidad_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione su nacionalidad</option>
+                  {loadingNacionalidades && <option>Cargando...</option>}
+                  {nacionalidades.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.nombre_nacionalidad}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="fecha-nacimiento">Fecha de nacimiento</Label>
+                </div>
+                <TextInput
+                  id="fecha-nacimiento"
+                  type="date"
+                  name="fecha_nacimiento"
+                  value={form.fecha_nacimiento}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="estado-civil" value="estado-civil">
+                    Estado civil
+                  </Label>
+                </div>
+                <Select
+                  name="estado_civil_id"
+                  id="estado-civil"
+                  required
+                  value={form.estado_civil_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione su estado civil</option>
+                  {loadingEstadoCivil && <option>Cargando...</option>}
+                  {estadoCivil.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nombre_estado_civil}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="max-w-md flex flex-row gap-6 my-6 items-center">
+                <Label>Discapacidad</Label>
+
+                <div className="flex items-center gap-2">
+                  <Radio
+                    name="discapacidad"
+                    checked={form.discapacidad === true}
+                    onChange={() =>
+                      setForm((prev) => ({ ...prev, discapacidad: true }))
+                    }
+                  />
+                  <Label>Sí</Label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Radio
+                    name="discapacidad"
+                    checked={form.discapacidad === false}
+                    onChange={() =>
+                      setForm((prev) => ({ ...prev, discapacidad: false }))
+                    }
+                  />
+                  <Label>No</Label>
+                </div>
+              </div>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="sexo" value="sexo">
+                    Sexo
+                  </Label>
+                </div>
+                <Select
+                  name="sexo_id"
+                  id="sexo"
+                  required
+                  value={form.sexo_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione su sexo</option>
+                  {loadingSexo && <option>Cargando...</option>}
+                  {sexo.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.nombre_sexo}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="pais" value="pais">
+                    Pais
+                  </Label>
+                </div>
+                <Select
+                  name="pais_id"
+                  id="pais"
+                  required
+                  value={form.pais_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione su pais</option>
+                  {loadingPaises && <option>Cargando...</option>}
+                  {paises.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre_pais}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="provincia" value="provincia">
+                    Provincia
+                  </Label>
+                </div>
+                <Select
+                  name="provincia_id"
+                  id="provincia"
+                  required
+                  value={form.provincia_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione su provincia</option>
+                  {loadingProvincias && <option>Cargando...</option>}
+                  {provincias.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre_provincia}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="ciudad" value="ciudad">
+                    Ciudad
+                  </Label>
+                </div>
+                <Select
+                  name="ciudad_id"
+                  id="ciudad"
+                  required
+                  value={form.ciudad_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione su ciudad</option>
+                  {loadingCiudades && <option>Cargando...</option>}
+                  {ciudades.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre_ciudad}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="flex flex-row items-center mx-auto gap-10">
+                <Button type="submit" isProcessing={saving}>
+                  Guardar datos demográficos
+                </Button>
+              </div>
+            </form>
+          </Card>
         </Card>
       </div>
     </div>

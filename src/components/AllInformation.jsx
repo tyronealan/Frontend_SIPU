@@ -7,43 +7,25 @@ import {
   Button,
   Blockquote,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
-import { getProfileRequest } from "../api/users.api"; // La función que definimos antes
 import { TbPointFilled } from "react-icons/tb";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { PiStudent } from "react-icons/pi";
 import { BsHouse } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
+import { URL_PHOTO } from "../api/http";
+import { useUserProfile } from "../hooks/useUser";
 
 export default function AllInformation({ onEditClick }) {
-  const URL_PHOTO = "http://192.168.0.115:4000/";
-  const [fullUser, setFullUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const inicial = fullUser?.nombre?.charAt(0).toUpperCase() || "U";
+  const { profile, loadingProfile, errorProfile } = useUserProfile();
+  // const inicial = fullUser?.nombre?.charAt(0).toUpperCase() || "U";
 
-  const fotoPerfil = fullUser?.foto_url
-    ? fullUser.foto_url.startsWith("http")
-      ? fullUser.foto_url
-      : `${URL_PHOTO}${fullUser.foto_url}`
+  const fotoPerfil = profile?.foto_url
+    ? profile.foto_url.startsWith("http")
+      ? profile.foto_url
+      : `${URL_PHOTO}${profile.foto_url}`
     : undefined;
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getProfileRequest();
-        setFullUser(data);
-      } catch (err) {
-        setError("No se pudo obtener la información completa.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchData();
-  }, []);
-
-  if (loading) {
+  if (loadingProfile) {
     return (
       <div className="flex justify-center items-center p-10">
         <Spinner size="xl" />
@@ -51,14 +33,32 @@ export default function AllInformation({ onEditClick }) {
     );
   }
 
-  if (error) {
+  if (errorProfile) {
     return (
       <Alert color="failure" className="m-4">
-        {error}
+        {errorProfile}
       </Alert>
     );
   }
 
+  const calcularEdad = (fechaString) => {
+    if (!fechaString) return "";
+
+    const hoy = new Date();
+    const fechaNacimiento = new Date(fechaString);
+
+    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+    const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+
+    // Si el mes actual es menor al de nacimiento, o es el mismo mes pero
+    // el día actual es menor al de nacimiento, aún no cumple años.
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+      edad--;
+    }
+
+    return edad;
+  };
+  const edad = calcularEdad(profile.fecha_nacimiento);
   return (
     <div className="flex flex-col items-center justify-center p-4 gap-6">
       <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
@@ -79,17 +79,17 @@ export default function AllInformation({ onEditClick }) {
               <div className="flex flex-col items-center md:items-start">
                 <div className="flex flex-col sm:flex-row items-center gap-2 mb-2">
                   <h5 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                    {fullUser?.nombre} {fullUser?.apellido}
+                    {profile?.nombre} {profile?.apellido}
                   </h5>
                   <Badge color="warning" icon={TbPointFilled}>
                     Pendiente
                   </Badge>
                 </div>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Cedula: 1313364414
+                  Cedula: {profile?.cedula}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Edad: 25 años
+                  Edad: {edad} años
                 </span>
               </div>
             </div>
@@ -109,93 +109,43 @@ export default function AllInformation({ onEditClick }) {
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Nombre</Blockquote>
-              <span>{fullUser?.nombre}</span>
-              <Blockquote className="text-base">País</Blockquote>
-              <span>{fullUser?.pais} </span>
+              <span>{profile?.nombre}</span>
             </div>
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Apellido</Blockquote>
-              <span>{fullUser?.apellido}</span>
+              <span>{profile?.apellido}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Cédula</Blockquote>
-              <span>{fullUser?.cedula}</span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Contraseña</Blockquote>
-              <span>{fullUser?.contraseña}</span>
-            </div>
-          </div>
-        </Card>
-        <Card>
-          <div className="flex flex-row items-center justify-center gap-3">
-            <IoPersonOutline className="size-10" />
-            <h5 className="font-bold text-xl">Informacion demografica</h5>
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Nacionalidad</Blockquote>
-              <span>{fullUser?.nacionalidad} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Fecha de nacimiento</Blockquote>
-              <span>{fullUser?.fecha_nacimiento} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Estado civil</Blockquote>
-              <span>{fullUser?.estado_civil} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Sexo</Blockquote>
-              <span>{fullUser?.sexo} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Autoidentificacion</Blockquote>
-              <span>{fullUser?.autoidentificacion} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Discapacidad</Blockquote>
-              <span>{fullUser?.discapacidad} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Pais</Blockquote>
-              <span>{fullUser?.pais} </span>
-            </div>
-             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Provincia</Blockquote>
-              <span>{fullUser?.provincia} </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Ciudad</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Cedula</Blockquote>
+              <span>{profile?.cedula}</span>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex flex-row items-center justify-center gap-3">
             <BsHouse className="size-10" />
-            <h5 className="font-bold text-xl">Información Domicilio</h5>
+            <h5 className="font-bold text-xl">Informacion Domicilio</h5>
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Barrio</Blockquote>
-              <span>{fullUser.barrio}</span>
+              <span>{profile?.barrio}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Calle Principal</Blockquote>
-              <span>{fullUser.calle_principal}</span>
+              <Blockquote className="text-base">Calle principal</Blockquote>
+              <span>{profile?.calle_principal}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Calle Secundaria</Blockquote>
-              <span>{fullUser.calle_secundaria}</span>
+              <Blockquote className="text-base">Calle secundaria</Blockquote>
+              <span>{profile?.calle_secundaria}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Número Domicilio</Blockquote>
-              <span>{fullUser.numero_domicilio}</span>
+              <Blockquote className="text-base">Numero de domicilio</Blockquote>
+              <span>{profile?.numero_domicilio}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Tipo Vivienda</Blockquote>
-              <span>{fullUser.tipo_vivienda}</span>
+              <Blockquote className="text-base">Tipo de vivienda</Blockquote>
+              <span>{profile?.tipo_vivienda}</span>
             </div>
           </div>
         </Card>
@@ -206,44 +156,87 @@ export default function AllInformation({ onEditClick }) {
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Titulo Homologado</Blockquote>
-              <span>{fullUser?.titulo_homologado}</span>
+              <Blockquote className="text-base">Titulo homologado</Blockquote>
+              <span>{profile?.titulo_homologado}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Unidad Educativa</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Unidad educativa</Blockquote>
+              <span>{profile?.unidad_educativa}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Ciudad</Blockquote>
-              <span>Manta</span>
+              <Blockquote className="text-base">Tipo de unidad educativa</Blockquote>
+              <span>{profile?.tipo_unidad_educativa}</span>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex flex-row items-center justify-center gap-3">
-            <IoPersonOutline className="size-10" />
-            <h5 className="font-bold text-xl">Informacion Servicios Básicos</h5>
+            <PiStudent className="size-10" />
+            <h5 className="font-bold text-xl">Servicios básicos</h5>
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Agua potable</Blockquote>
-              <span>{fullUser?.agua_potable}</span>
+              <span>{profile?.agua_potable == true ? "Si": "No"}</span>
             </div>
             <div className="flex flex-col gap-2">
-              <Blockquote className="text-base">Energia electrica</Blockquote>
-              <span>{fullUser?.energia_electrica}</span>
+              <Blockquote className="text-base">Energía electrica</Blockquote>
+              <span>{profile?.energia_electrica == true ? "Si": "No"}</span>
             </div>
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Alcantarillado</Blockquote>
-              <span>{fullUser?.alcantarillado}</span>
+              <span>{profile?.alcantarillado == true ? "Si": "No"}</span>
             </div>
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Recoleccion de basura</Blockquote>
-              <span>{fullUser?.recoleccion_basura}</span>
+              <span>{profile?.recoleccion_basura == true ? "Si": "No"}</span>
             </div>
             <div className="flex flex-col gap-2">
               <Blockquote className="text-base">Internet</Blockquote>
-              <span>{fullUser?.internet}</span>
+              <span>{profile?.internet == true ? "Si": "No"}</span>
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex flex-row items-center justify-center gap-3">
+            <PiStudent className="size-10" />
+            <h5 className="font-bold text-xl">Información demográfica</h5>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Nacionalidad</Blockquote>
+              <span>{profile?.nacionalidad}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Fecha de nacimiento</Blockquote>
+              <span>
+                {profile?.fecha_nacimiento
+                ? new Date (profile.fecha_nacimiento).toLocaleDateString("es-EC")
+                : ""}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Estado civil</Blockquote>
+              <span>{profile?.estado_civil}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Sexo</Blockquote>
+              <span>{profile?.sexo}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Discapacidad</Blockquote>
+              <span>{profile?.discapacidad == false? "No": "Si"}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">País</Blockquote>
+              <span>{profile?.nombre_pais}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Provincia</Blockquote>
+              <span>{profile?.nombre_provincia}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Blockquote className="text-base">Ciudad</Blockquote>
+              <span>{profile?.nombre_ciudad}</span>
             </div>
           </div>
         </Card>

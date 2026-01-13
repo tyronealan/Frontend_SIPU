@@ -70,3 +70,41 @@ export const uploadPhotoRequest = async (file) => {
     body: formData,
   });
 };
+
+export function createDatosDomicilio(data) {
+  return apiFetch("python/viviendas", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+export function createServiciosBasicos(data) {
+  return apiFetch("python/servicios-basicos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+export function createDatosAcademicos(data) {
+  return apiFetch("python/datos-academicos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export const getDatosAcademicasToken = async () => {
+  const token = localStorage.getItem("token");
+  return await apiFetch("python/datos-academicos", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

@@ -12,37 +12,22 @@ import {
 } from "flowbite-react";
 import { ToggleTheme } from "./ThemeToggle";
 import { HiChevronRight } from "react-icons/hi";
-import { useEffect, useState } from "react";
-import { getProfileRequest } from "../api/users.api";
+import { URL_PHOTO } from "../api/http";
+import { Link } from "react-router-dom";
+import { useUserProfile } from "../hooks/useUser";
 
 export default function MenuAuth({ user }) {
-  const URL_PHOTO = "http://localhost:4000/";
-  const [fullUser, setFullUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { profile } = useUserProfile();
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
   const inicial = user?.nombre?.charAt(0).toUpperCase() || "U";
-  const fotoPerfil = fullUser?.foto_url
-    ? fullUser.foto_url.startsWith("http")
-      ? fullUser.foto_url
-      : `${URL_PHOTO}${fullUser.foto_url}`
+  const fotoPerfil = profile?.foto_url
+    ? profile.foto_url.startsWith("http")
+      ? profile.foto_url
+      : `${URL_PHOTO}${profile.foto_url}`
     : undefined;
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getProfileRequest();
-        setFullUser(data);
-      } catch (err) {
-        setError("No se pudo obtener la información completa.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchData();
-  }, []);
-
-  // console.log(usuario.foto_url);
+  console.log(profile);
 
   return (
     <Navbar fluid rounded>
@@ -55,7 +40,7 @@ export default function MenuAuth({ user }) {
       </NavbarBrand>
       <div className="flex md:order-2 items-center ">
         <span className="block text-sm mr-4">
-          Hola {fullUser?.nombre} {fullUser?.apellido}
+          Hola {profile?.nombre} {profile?.apellido}
         </span>
         <Dropdown
           arrowIcon={false}
@@ -86,7 +71,22 @@ export default function MenuAuth({ user }) {
             Cerrar sesión
           </DropdownItem>
         </Dropdown>
+        {user.rol == "ADMIN" ? <NavbarToggle /> : null}
       </div>
+
+      {user.rol == "ADMIN" ? (
+        <NavbarCollapse>
+          <NavbarLink to="/home" as={Link}>
+            Ofertas Academicas
+          </NavbarLink>
+          <NavbarLink to="sedes-evaluaciones" as={Link}>
+            Sedes Evaluación
+          </NavbarLink>
+          <NavbarLink to="ofertas-academicas" as={Link}>
+            Estudiantes
+          </NavbarLink>
+        </NavbarCollapse>
+      ) : null}
     </Navbar>
   );
 }

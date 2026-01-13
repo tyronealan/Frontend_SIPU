@@ -3,7 +3,7 @@ import Lottie from "lottie-react";
 import loginAnimation from "../assets/Login.json";
 import { useState } from "react";
 import { loginRequest } from "../api/login.api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login({ setUser }) {
   const [cedula, setCedula] = useState("");
@@ -74,6 +74,9 @@ export default function Login({ setUser }) {
             <Button type="submit" className="mt-2" disabled={loading}>
               {loading ? "Cargando..." : "Entrar"}
             </Button>
+            <Link to="/register" className="mx-auto">
+              ¿No tienes cuenta? Registrate
+            </Link>
           </form>
         </Card>
       </div>

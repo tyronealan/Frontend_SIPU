@@ -1,4 +1,5 @@
-const API_URL = "http://192.168.0.115:4000/api";
+const API_URL = "http://192.168.3.30:4000/api";
+export const URL_PHOTO = "http://192.168.3.30:4000/";
 
 export async function apiFetch(endpoint, options = {}) {
   // 1. Decidir los headers por defecto
@@ -24,4 +25,3 @@ export async function apiFetch(endpoint, options = {}) {
 
   return res.json();
 }
-  

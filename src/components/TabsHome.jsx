@@ -9,6 +9,9 @@ import { FaWpforms } from "react-icons/fa6";
 import AllInformation from "./AllInformation";
 import { useRef, useState } from "react";
 import TabsFormInfo from "./TabsFormInfo";
+import Postulacion from "./Postulacion";
+import SedeEvaluacion from "./SedeEvaluacion";
+import Inscripcion from "./Inscripcion";
 
 export default function TabHome({ user }) {
   const tabsRef = useRef(null);
@@ -28,16 +31,16 @@ export default function TabHome({ user }) {
         />
       </TabItem>
       <TabItem title="Información aspirante" icon={FaWpforms}>
-        <TabsFormInfo />
+        <TabsFormInfo user={user} />
       </TabItem>
       <TabItem title="Inscripción" icon={MdOutlineEditNote}>
-        Hola soy el tercer tab
+        <Inscripcion />
       </TabItem>
       <TabItem title="Sede evaluación" icon={MdOutlineLocationOn}>
-        Hola soy el cuarto tab
+        <SedeEvaluacion />
       </TabItem>
       <TabItem title="Postulación" icon={MdOutlineTaskAlt}>
-        Hola soy el cuarto tab
+        <Postulacion />
       </TabItem>
     </Tabs>
   );
